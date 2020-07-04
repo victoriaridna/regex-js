@@ -1,0 +1,19 @@
+{
+  "name": "regex-js",
+  "version": "1.0.0",
+  "description": "regex-js",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/victoriaridna/regex-js.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/victoriaridna/regex-js/issues"
+  },
+  "homepage": "https://github.com/victoriaridna/regex-js#readme"
+}
