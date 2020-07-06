@@ -14,7 +14,7 @@ const addTransition = (from, to, symbol) => {
 	from.transition[symbol] = to;
 }
 
-const fromEpsilon = () => {
+export const fromEpsilon = () => {
 	const start = createState(false);
 	const end = createState(true);
 	addEpsilonTransition(start, end);
@@ -22,7 +22,7 @@ const fromEpsilon = () => {
 	return { start, end };
 }
 
-const fromSymbol = symbol => {
+export const fromSymbol = symbol => {
 	const start = createState(false);
 	const end = createState(true);
 	addTransition(start, end, symbol);
@@ -30,14 +30,14 @@ const fromSymbol = symbol => {
 	return { start, end };
 }
 
-const concat = (first, second) => {
+export const concat = (first, second) => {
 	addEpsilonTransition(first.end, second.start);
 	first.end.isEnd = false;
 
 	return { start: first.start, end: second.end };
 }
 
-const union = (first, second) => {
+export const union = (first, second) => {
 	const start = createState(false);
 	addEpsilonTransition(start, first.start);
 	addEpsilonTransition(start, second.start);
@@ -51,7 +51,7 @@ const union = (first, second) => {
 	return { start, end };
 }
 
-const closure = nfa => {
+export const closure = nfa => {
 	const start = createState(false);
 	const end = createState(true);
 
@@ -65,11 +65,43 @@ const closure = nfa => {
 	return { start, end };
 }
 
+const addNextState = (state, nextStates, visited) => {
+	if (state.epsilonTransitions.length) {
+		for (const st of state.epsilonTransitions) {
+			if (!visited.find(vs => vs === st)) {
+				visited.push(st);
+				addNextStates(st, nextStates, visited);
+			}
+		}
+	} else {
+		nextStates.push(state);
+	}
+}
+
+export const search = (nfa, word) => {
+	let currentStates = [];
+	addNextState(nfa.start, currentStates, []);
+
+	for (const symbol of word) {
+		const nextStates = [];
+
+		for (const state of currentStates) {
+			const nextState = state.transition[symbol];
+			if (nextState) {
+				addNextState(nextState, nextStates, []);
+			}
+		}
+		currentStates = nextStates;
+	}
+
+	return currentStates.find(s => s.isEnd) ? true : false;
+}
+
 /*
 		Converts a postfix regular expression into a Thompson NFA.
 */
 
-const toNFA = postfixExp => {
+export const toNFA = postfixExp => {
 	if (postfixExp === '') {
 		return fromEpsilon();
 	}
@@ -95,41 +127,8 @@ const toNFA = postfixExp => {
 	return stack.pop();
 }
 
-const addNextState = (state, nextStates, visited) => {
-	if (state.epsilonTransitions.length) {
-		for (const st of state.epsilonTransitions) {
-			if (!visited.find(vs => vs === st)) {
-				visited.push(st);
-				addNextStates(st, nextStates, visited);
-			}
-		}
-	} else {
-		nextStates.push(state);
-	}
-}
 
-const search = (nfa, word) => {
-	let currentStates = [];
-	addNextState(nfa.start, currentStates, []);
-
-	for (const symbol of word) {
-		const nextStates = [];
-
-		for (const state of currentStates) {
-			const nextState = state.transition[symbol];
-			if (nextState) {
-				addNextState(nextState, nextStates, []);
-			}
-		}
-		currentStates = nextStates;
-	}
-
-	return currentStates.find(s => s.isEnd) ? true : false;
-}
-
-const createMatcher = exp => {
-	const postfixExp = toPostfix(insertExplicitConcatOperator(exp));
-	const nfa = toNFA(postfixExp);
-
-	return word => search(nfa, word);
+export const recognize = (nfa, word) => {
+	// return recursiveBacktrackingSearch(nfa.start, [], word, 0);
+	return search(nfa, word);
 }

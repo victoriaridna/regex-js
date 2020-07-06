@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/victoriaridna/regex-js/issues"
   },
-  "homepage": "https://github.com/victoriaridna/regex-js#readme"
+  "homepage": "https://github.com/victoriaridna/regex-js#readme",
+  "dependencies": {
+    "antlr4": "^4.8.0"
+  }
 }
